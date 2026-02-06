@@ -18,7 +18,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote add upstream https://git.unlock-music.dev/um/web.git || true
           git fetch upstream
-          for branch in $(git branch -r | grep upstream/ | sed 's|upstream/||'); do
+          for branch in $(git ls-remote --heads upstream | awk '{print $2}' | sed 's|refs/heads/||'); do
             if [ "$branch" != "sync" ]; then
               git checkout -B $branch upstream/$branch
             fi
