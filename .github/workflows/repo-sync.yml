@@ -1,0 +1,26 @@
+on:
+  schedule:
+    - cron: "0 0 */15 * *"
+  workflow_dispatch:
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync with upstream
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote add upstream https://git.unlock-music.dev/um/web.git || true
+          git fetch upstream
+          for branch in $(git branch -r | grep upstream/ | sed 's|upstream/||'); do
+            if [ "$branch" != "sync" ]; then
+              git checkout -B $branch upstream/$branch
+            fi
+          done
+          git push origin --all --force
